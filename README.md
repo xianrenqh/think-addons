@@ -344,6 +344,11 @@ function get_addons_fullconfig($name)
  */
 function set_addons_fullconfig($name, $array)
 
+
+/**
+* 获取插件列表
+ */
+function get_plugins_list()
 ```
 
 ## 插件目录结构

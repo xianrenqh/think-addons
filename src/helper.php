@@ -288,3 +288,41 @@ if ( ! function_exists('set_addons_fullconfig')) {
         return true;
     }
 }
+
+/**
+ * 获取插件列表
+ */
+if ( ! function_exists('get_plugins_list')) {
+    function get_plugins_list()
+    {
+        $addon_path = BASE_PATH.'addons'.DIRECTORY_SEPARATOR;
+        $results    = scandir($addon_path);
+        $list       = [];
+        foreach ($results as $name) {
+            if ($name === '.' or $name === '..') {
+                continue;
+            }
+            if (is_file($addon_path.$name)) {
+                continue;
+            }
+            $addonDir = $addon_path.$name.DIRECTORY_SEPARATOR;
+            if ( ! is_dir($addonDir)) {
+                continue;
+            }
+            if ( ! is_file($addonDir.ucfirst($name).'.php')) {
+                continue;
+            }
+            $info_file = $addonDir.'info.ini';
+            if ( ! is_file($info_file)) {
+                continue;
+            }
+            $info = parse_ini_file($info_file, true, INI_SCANNER_TYPED) ?: [];
+            if ( ! isset($info['name'])) {
+                continue;
+            }
+            $list[$name] = $info;
+        }
+
+        return $list;
+    }
+}
