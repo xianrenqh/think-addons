@@ -69,29 +69,60 @@ return [
 
 ### 创建钩子实现类
 
-> 在test目录中创建 Plugin.php 类文件。注意：类文件首字母需大写
+> 在test目录中创建 Test.php 类文件。注意：类文件首字母需大写，文件夹要和目录名保持一直
 
 ```php
 <?php
-namespace addons\test;	// 注意命名空间规范
 
+namespace addons\test;
+
+use think\App;
 use think\Addons;
 
-/**
- * 插件测试
- * @author byron sampson
- */
-class Plugin extends Addons	// 需继承think\Addons类
+class Test extends Addons
 {
-    // 该插件的基础信息
-    public $info = [
-        'name' => 'test',	// 插件标识
-        'title' => '插件测试',	// 插件名称
-        'description' => 'thinkph6插件测试',	// 插件简介
-        'status' => 0,	// 状态
-        'author' => 'byron sampson',
-        'version' => '0.1'
+
+    //后台菜单
+    public $admin_list = [
+        [
+            //方法名称
+            "action" => "index",
+            //菜单标题
+            'title'  => '测试添加插件菜单',
+            //icon图标，默认为 fa-list
+            'icon'   => '',
+            //附加参数 例如：a=12&id=777
+            "params" => "",
+            //默认排序
+            'sort'   => 0,
+            //状态，1是显示，0是不显示
+            'status' => 1
+        ],
+        [
+            //方法名称
+            "action" => "index2",
+            //菜单标题
+            'title'  => '测试添加插件菜单',
+            //icon图标，默认为 fa-list
+            'icon'   => '',
+            //附加参数 例如：a=12&id=777
+            "params" => "",
+            //默认排序
+            'sort'   => 0,
+            //状态，1是显示，0是不显示
+            'status' => 1
+        ]
     ];
+
+    // 该插件的基础信息
+    /*public $info = [
+        'name'        => 'test',    // 插件标识
+        'title'       => '插件测试',    // 插件名称
+        'description' => 'thinkph6插件测试',    // 插件简介
+        'status'      => 1,    // 状态
+        'author'      => 'byron sampson',
+        'version'     => '0.1'
+    ];*/
 
     /**
      * 插件安装方法
@@ -117,14 +148,14 @@ class Plugin extends Addons	// 需继承think\Addons类
      */
     public function testhook($param)
     {
-		// 调用钩子时候的参数信息
-        print_r($param);
-		// 当前插件的配置信息，配置信息存在当前目录的config.php文件中，见下方
-        print_r($this->getConfig());
-		// 可以返回模板，模板文件默认读取的为插件目录中的文件。模板名不能为空！
+        // 调用钩子时候的参数信息
+        dump($param);
+        // 当前插件的配置信息，配置信息存在当前目录的config.php文件中，见下方
+        dump($this->getConfig());
+
+        // 可以返回模板，模板文件默认读取的为插件目录中的文件。模板名不能为空！
         return $this->fetch('info');
     }
-
 }
 ```
 
@@ -134,22 +165,80 @@ class Plugin extends Addons	// 需继承think\Addons类
 
 ```php
 <?php
-return [
-    'display' => [
-        'title' => '是否显示:',
-        'type' => 'radio',
-        'options' => [
-            '1' => '显示',
-            '0' => '不显示'
-        ],
-        'value' => '1'
-    ]
-];
+return array(
+    'display'  => array(
+        'name'    => 'display',
+        'title'   => '是否显示:',
+        'type'    => 'radio',
+        'options' => array(
+            1 => '显示',
+            0 => '不显示',
+        ),
+        'value'   => '0',
+    ),
+    'appid'    => array(
+        'name'  => 'appid',
+        'title' => '熊掌号appid',
+        'type'  => 'text',
+        'value' => '1111',
+        'tip'   => '熊掌号请前往<a href="https://ziyuan.baidu.com/xzh/home/index" target="_blank">熊掌号平台</a>获取Appid和Token',
+    ),
+    'type'     => array(
+        'name'    => 'type',
+        'title'   => '开启同步登陆：',
+        'type'    => 'checkbox',
+        'options' => array(
+            'qq'     => 'qq',
+            'sian'   => 'sian',
+            'weixin' => 'weixin',
+        ),
+        'value'   => 'sian,weixin',
+    ),
+    'textarea' => array(
+        'name'  => 'textarea',
+        'title' => '测试textarea：',
+        'type'  => 'textarea',
+        'value' => 'testdddddd',
+        'tip'   => '测试textarea提示',
+    ),
+    'compress' => array(
+        'name'    => 'compress',
+        'title'   => '是否启用压缩',
+        'type'    => 'select',
+        'options' => array(
+            1 => '启用压缩',
+            0 => '不启用',
+        ),
+        'value'   => '0',
+        'tip'     => '压缩备份文件需要PHP环境支持gzopen,gzwrite函数',
+    ),
+    'pic'      => array(
+        'name'  => 'pic',
+        'title' => '固定图片',
+        'type'  => 'image',
+        'value' => '',
+        'tip'   => '选择固定则需要上传此图片',
+    ),
+);
+
 ```
+
+### 创建插件说明文件：info.ini
+
+~~~
+name = test
+title = 测试
+description = 测试
+author = 小灰灰
+website = https://xiaohuihui.net.cn
+version = 1.0.0
+has_adminlist = 1
+status = 1
+~~~
 
 ### 创建钩子模板文件
 
-> 在test->view目录中创建info.html模板文件，钩子在使用fetch方法时对应的模板文件。
+> 在test->view->index目录中创建info.html模板文件，钩子在使用fetch方法时对应的模板文件。
 
 ```html
 <h1>hello tpl</h1>
@@ -172,7 +261,6 @@ test为插件名，Action为controller中的类名[多级控制器可以用.分�
 ```php
 <?php
 namespace addons\test\controller;
-
 class Index
 {
     public function link()
