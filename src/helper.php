@@ -5,7 +5,7 @@ use think\facade\Event;
 use think\facade\Route;
 use think\helper\Str;
 use think\helper\Arr;
-use think\Loader;
+use think\facade\Loader;
 
 define('BASE_PATH', str_replace('\\', '/', realpath(dirname(__FILE__).'/'))."/../../../../");
 
@@ -324,5 +324,52 @@ if ( ! function_exists('get_plugins_list')) {
         }
 
         return $list;
+    }
+}
+
+/**
+ * 获得插件自动加载的配置.
+ *
+ * @param bool $truncate 是否清除手动配置的钩子
+ *
+ * @return array
+ */
+if ( ! function_exists('get_addons_autoload_config')) {
+    function get_addons_autoload_config($truncate = false)
+    {
+        // 读取addons的配置
+        $config = config('addons');
+        if ($truncate) {
+            // 清空手动配置的钩子
+            $config['hooks'] = [];
+        }
+        // 读取插件目录及钩子列表
+        $base   = get_class_methods('\\think\\Addons');
+        $base   = array_merge($base, ['install', 'uninstall', 'enable', 'disable']);
+        $addons = get_plugins_list();
+        foreach ($addons as $name => $addon) {
+            if (0 >= $addon['status']) {
+                continue;
+            }
+            // 读取出所有公共方法
+            $methods = (array)get_class_methods('\\addons\\'.$name.'\\'.ucfirst($name));
+            // 跟插件基类方法做比对，得到差异结果
+            $hooks = array_diff($methods, $base);
+            // 循环将钩子方法写入配置中
+            foreach ($hooks as $hook) {
+                if ( ! isset($config['hooks'][$hook])) {
+                    $config['hooks'][$hook] = [];
+                }
+                // 兼容手动配置项
+                if (is_string($config['hooks'][$hook])) {
+                    $config['hooks'][$hook] = explode(',', $config['hooks'][$hook]);
+                }
+                if ( ! in_array($name, $config['hooks'][$hook])) {
+                    $config['hooks'][$hook][] = $name;
+                }
+            }
+        }
+
+        return $config;
     }
 }
