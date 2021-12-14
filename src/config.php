@@ -10,8 +10,8 @@
 // +----------------------------------------------------------------------
 
 return [
-    'autoload' => true,
-    'hooks' => [],
-    'route' => [],
-    'service' => [],
+    'autoload' => false,
+    'hooks'    => [],
+    'route'    => [],
+    'service'  => [],
 ];
